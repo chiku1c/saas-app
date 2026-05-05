@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { pool } from "@/lib/db";
 import jwt from "jsonwebtoken";
 
-async function getUser(req: Request) {
+async function getUser(req: NextRequest) {
   const auth = req.headers.get("authorization");
   if (!auth) throw new Error("No token");
 
@@ -12,9 +12,9 @@ async function getUser(req: Request) {
 
 // ✅ UPDATE
 export async function PUT(
-  req: Request,
+  req: NextRequest,
   context: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   try {
     const user = await getUser(req);
     const { id } = await context.params;
@@ -29,16 +29,19 @@ export async function PUT(
     );
 
     return NextResponse.json({ message: "Product updated" });
-  } catch (e) {
-    return NextResponse.json({ error: "Failed", details: e }, { status: 500 });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: "Failed", details: e.message },
+      { status: 500 }
+    );
   }
 }
 
 // ✅ DELETE
 export async function DELETE(
-  req: Request,
+  req: NextRequest,
   context: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   try {
     const user = await getUser(req);
     const { id } = await context.params;
@@ -50,7 +53,10 @@ export async function DELETE(
     );
 
     return NextResponse.json({ message: "Product deleted" });
-  } catch (e) {
-    return NextResponse.json({ error: "Failed", details: e }, { status: 500 });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: "Failed", details: e.message },
+      { status: 500 }
+    );
   }
 }
