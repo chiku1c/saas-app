@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { pool } from "@/lib/db";
+import { pool } from "../../../../lib/db";
 import jwt from "jsonwebtoken";
 
 async function getUser(req: NextRequest) {
