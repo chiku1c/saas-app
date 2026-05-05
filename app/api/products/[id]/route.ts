@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { pool } from "../../../../lib/db";
+import { pool } from "@/lib/db";
 import jwt from "jsonwebtoken";
 
 async function getUser(req: NextRequest) {
@@ -13,11 +13,11 @@ async function getUser(req: NextRequest) {
 // ✅ UPDATE
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }   // 🔥 FIX HERE
+  context: { params: Promise<{ id: string }> }   // 🔥 IMPORTANT
 ) {
   try {
     const user = await getUser(req);
-    const { id } = params;
+    const { id } = await context.params;         // 🔥 await करना पड़ेगा
 
     const { name, price, quantity } = await req.json();
 
@@ -40,11 +40,11 @@ export async function PUT(
 // ✅ DELETE
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }   // 🔥 FIX HERE
+  context: { params: Promise<{ id: string }> }   // 🔥 IMPORTANT
 ) {
   try {
     const user = await getUser(req);
-    const { id } = params;
+    const { id } = await context.params;
 
     await pool.query(
       `DELETE FROM products
