@@ -13,11 +13,11 @@ async function getUser(req: NextRequest) {
 // ✅ UPDATE
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
-): Promise<Response> {
+  { params }: { params: { id: string } }   // 🔥 FIX HERE
+) {
   try {
     const user = await getUser(req);
-    const { id } = await context.params;
+    const { id } = params;
 
     const { name, price, quantity } = await req.json();
 
@@ -40,11 +40,11 @@ export async function PUT(
 // ✅ DELETE
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
-): Promise<Response> {
+  { params }: { params: { id: string } }   // 🔥 FIX HERE
+) {
   try {
     const user = await getUser(req);
-    const { id } = await context.params;
+    const { id } = params;
 
     await pool.query(
       `DELETE FROM products
