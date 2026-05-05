@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { pool } from "../../../../lib/db";
+import { pool } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -7,41 +7,59 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    // check user
-    const user = await pool.query("SELECT * FROM users WHERE email=$1", [
-      email,
-    ]);
+    console.log("👉 Incoming:", email, password);
 
-    if (user.rows.length === 0) {
+    const userRes = await pool.query(
+      "SELECT * FROM users WHERE email=$1",
+      [email]
+    );
+
+    console.log("👉 DB user:", userRes.rows);
+
+    if (userRes.rows.length === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // compare password
-    const valid = await bcrypt.compare(password, user.rows[0].password);
+    const user = userRes.rows[0];
+
+    console.log("👉 DB password:", user.password);
+
+    const valid = await bcrypt.compare(password, user.password);
+
+    console.log("👉 Password match:", valid);
 
     if (!valid) {
       return NextResponse.json({ error: "Invalid password" }, { status: 401 });
     }
 
-    // generate token
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET missing");
+    }
+
     const token = jwt.sign(
       {
-        user_id: user.rows[0].id,
-        tenant_id: user.rows[0].tenant_id,
-        role: user.rows[0].role,
+        user_id: user.id,
+        tenant_id: user.tenant_id,
+        role: user.role,
       },
-      process.env.JWT_SECRET as string, // 🔥 IMPORTANT
-      { expiresIn: "1d" },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
     );
 
     return NextResponse.json({
       message: "Login success",
       token,
     });
-  } catch (e) {
+
+  } catch (e: any) {
+    console.error("🔥 LOGIN ERROR FULL:", e);
+
     return NextResponse.json(
-      { error: "Login failed", details: e },
-      { status: 500 },
+      {
+        error: "Login failed",
+        details: e.message || "Unknown error",
+      },
+      { status: 500 }
     );
   }
 }
