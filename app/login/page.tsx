@@ -19,16 +19,35 @@ export default function Login() {
       localStorage.setItem("token", data.token);
       router.push("/dashboard");
     } else {
-      alert(data.error || "Login failed");
+      alert(data.error);
     }
   };
 
   return (
-    <div className="p-10">
-      <h1>Login</h1>
-      <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Login</button>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-6 rounded shadow w-80">
+        <h1 className="text-xl font-bold mb-4 text-center">Login</h1>
+
+        <input
+          className="border p-2 w-full mb-3 rounded"
+          placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          className="border p-2 w-full mb-3 rounded"
+          type="password"
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button
+          onClick={handleLogin}
+          className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700"
+        >
+          Login
+        </button>
+      </div>
     </div>
   );
 }
